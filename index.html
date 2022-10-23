@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<style>
+    .line {
+        fill: none;
+        stroke: rgb(241, 13, 165);
+        shape-rendering: crispEdges;
+    }
+
+    #streetLine {
+        background-color: rgb(250, 253, 255);
+        height: 87%;
+        width: 50%;
+        float: left;
+    }
+
+    #timeLine {
+        background-color: rgb(250, 253, 255);
+        height: 87%;
+        width: 47%;
+        float: left;
+    }
+
+
+    /* set the CSS */
+    .d3-tip {
+        line-height: 1;
+        padding: 6px;
+        background: white;
+        color: rgb(14, 13, 13);
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    /* Creates a small triangle extender for the tooltip */
+    .d3-tip:after {
+        box-sizing: border-box;
+        display: inline;
+        font-size: 10px;
+        width: 100%;
+        line-height: 1;
+        color: rgba(74, 204, 236, 0.8);
+        content: "\25BC";
+        position: absolute;
+        text-align: center;
+    }
+
+    /* Style northward tooltips specifically */
+    .d3-tip.n:after {
+        margin: -2px 0 0 0;
+        top: 100%;
+        left: 0;
+    }
+
+    .line {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 2px;
+    }
+
+    #genderGraph {
+        background-color: rgb(250, 253, 255);
+    }
+
+    #ageGraph {
+        background-color: rgb(250, 253, 255);
+    }
+
+	#page {
+		clear: both;
+	}
+
+	body {
+		margin: 36px;
+	}
+
+	 
+ 
+</style>
+
+<body>
+
+    <h1>CHOLERA OUTBREAK- 1854 IN LONDON</h1>
+    <div width="600" height="400">
+        <div id="timeLine">
+        </div>
+    </div>
+    <div width="600" height="400">
+        <div id="streetLine"></div>
+    </div>
+    <div id="page">
+        <div>
+            <p><br></p>
+        </div>
+        <div>
+            <h3>DEATHS ANALYSIS CHART :</h3>
+        </div>
+    </div>
+
+
+    <div id=age>
+
+        <svg id="ageGraph" width="550" height="530">
+            <text id='label' x='200' y='70'> Age Based Deaths Chart</text>
+            <g transform="translate(150,900)"></g>
+        </svg>
+    </div>
+
+
+    <div id=gender>
+        <svg id="genderGraph" width="550" height="550">
+            <text id='label' x='200' y='20'> Gender Based Deaths chart</text>
+            <g transform="translate(200,400)"></g>
+        </svg>
+    </div>
+
+    <h3>YOUTUBE VIDEO : </h3>
+     <div>
+		</iframe>
+        
+		<iframe width="900" height="450" src="https://www.youtube.com/embed/fY4CNzGFLfs">
+		</iframe>
+	</div>  
+
+
+    <div>
+        <h3>DOCUMENTATION : </h3>
+        <a href="Document.html">Navigate to Documentation Page </a>
+    </div>
+
+    <h3>REFERENCE</h3>
+    <p>To know more about the cholera outbreak, click on the link below</p>
+    <a
+        href="https://en.wikipedia.org/wiki/1854_Broad_Street_cholera_outbreak">https://en.wikipedia.org/wiki/1854_Broad_Street_cholera_outbreak</a>
+    <h5>D3 Js libraries : </h5>
+    <a href="https://d3js.org/">D3 Js lib</a><br>
+    <a href="https://www.d3-graph-gallery.com/"> D3 Graph Charts</a><br>
+    <a href="https://d3-wiki.readthedocs.io/zh_CN/master/Upgrading-to-3.0/"> D3 Documentation</a>
+
+    <!-- load the d3.js library -->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="d3-tip.js"></script>
+
+    <script>
+
+        // set the dimensions and margins of the graph
+
+        var margin = { top: 20, right: 20, bottom: 30, left: 50 },
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+        // parse the date / time
+
+
+        // set the ranges
+
+        var x = d3.scaleLinear().range([0, 360]);
+        var y = d3.scaleLinear().range([0, 360]);
+
+        // define the line
+        // var valueline = d3.line()
+        //     .x(function(d) { return x(d.Date); })
+        //     .y(function(d) { return y(d.Imports); });
+        // define the line
+
+        var valueline2 = d3.line()
+            .x(function (d) { return x(d.x); })
+            .y(function (d) { return y(d.y); });
+
+        // append the svg obgect to the body of the page
+        // appends a 'group' element to 'svg'
+        // moves the 'group' element to the top left margin
+
+        var svg = d3.select("#streetLine").append("svg")
+            .attr("id", "main")
+            .attr("width", "650")
+            .attr("height", "590")
+            .call(d3.zoom().on("zoom", function () {
+                svg.attr("transform", d3.event.transform)
+            }))
+            .append("g")
+            .attr("transform", "translate(50,160) ");
+        d3.json("data/streets.json", function (error, data) {
+            if (error) throw error;
+            console.log("data :: " + data)
+            // trigger render
+            map = data
+            d3.csv("data/pumps.csv", function (data) {
+                pumps_loc = data;
+                console.log("xv : " + pumps_loc);
+                d3.csv("data/deaths_age_sex.csv", function (data) {
+                    deaths = data;
+                    d3streetdraw(map, pumps_loc, deaths);
+                });
+            });
+        });
+        d3.csv("data/deathdays.csv", function (data) {
+
+            d3plotTimeline(data);
+        });
+
+
+
+
+        age_distribution()
+
+        function age_distribution() {
+            var svg = d3.select("#ageGraph")
+                .append("svg")
+                .attr("width", 500)
+                .attr("height", 500)
+                .append("g")
+                .attr("transform",
+                    "translate(" + 90 + "," + 90 + ")");
+
+            // Parse the Data
+            d3.csv("data/age_distribution.csv", function (data) {
+
+                // Add X axis
+                var x = d3.scaleLinear()
+                    .domain([0, 500])
+                    .range([0, 350]);
+                svg.append("g")
+                    .attr("transform", "translate(0," + 340 + ")")
+                    .call(d3.axisBottom(x))
+                    .selectAll("text")
+                    .attr("transform", "translate(-10,0)rotate(-45)")
+                    .style("text-anchor", "end");
+
+                // Y axis
+                var y = d3.scaleBand()
+                    .range([0, 340])
+                    .domain(data.map(function (d) { return d.age; }))
+                    .padding(.1);
+                svg.append("g")
+                    .call(d3.axisLeft(y))
+
+                var tool_tip = d3.tip()
+                    .attr("class", "d3-tip")
+                    .offset([-8, 0])
+                    .html(function (d) { return "Deaths : " + d.deaths; });
+                // svg.call(tool_tip);
+
+                //Bars
+                svg.selectAll("myRect")
+                    .data(data)
+                    .enter()
+                    .append("rect")
+                    .attr("x", x(0))
+                    .attr("y", function (d) { return y(d.age); })
+                    .attr("width", function (d) { return x(d.deaths); })
+                    .attr("height", y.bandwidth())
+                    .attr("fill", "#69b3a2")
+                    .call(tool_tip)
+                    .on('mouseover', tool_tip.show)
+                    .on('mouseout', tool_tip.hide);
+
+                // .attr("x", function(d) { return x(d.Country); })
+                // .attr("y", function(d) { return y(d.Value); })
+                // .attr("width", x.bandwidth())
+                // .attr("height", function(d) { return height - y(d.Value); })
+                // .attr("fill", "#69b3a2")
+
+
+            })
+        }
+        gender();
+
+
+        function gender() {
+            var svg = d3.select("#genderGraph")
+                .append("svg")
+                .attr("width", 500)
+                .attr("height", 600)
+                .append("g")
+                .attr("transform",
+                    "translate(" + 90 + "," + 70 + ")");
+
+            // Parse the Data
+            d3.csv("data/gender_distribution.csv", function (data) {
+
+                // Add X axis
+                var x = d3.scaleLinear()
+                    .domain([0, 500])
+                    .range([0, 350]);
+                svg.append("g")
+                    .attr("transform", "translate(0," + 340 + ")")
+                    .call(d3.axisBottom(x))
+                    .selectAll("text")
+                    .attr("transform", "translate(-10,0)rotate(-45)")
+                    .style("text-anchor", "end");
+
+                // Y axis
+                var y = d3.scaleBand()
+                    .range([0, 340])
+                    .domain(data.map(function (d) { return d.gender; }))
+                    .padding(.1);
+                svg.append("g")
+                    .call(d3.axisLeft(y))
+
+                var tool_tip = d3.tip()
+                    .attr("class", "d3-tip")
+                    .offset([-8, 0])
+                    .html(function (d) { return "Deaths : " + d.deaths; });
+                // svg.call(tool_tip);
+
+                //Bars
+                svg.selectAll("myRect")
+                    .data(data)
+                    .enter()
+                    .append("rect")
+                    .attr("x", x(0))
+                    .attr("y", function (d) { return y(d.gender); })
+                    .attr("width", function (d) { return x(d.deaths); })
+                    .attr("height", y.bandwidth())
+                    .attr("fill", "#69b3a2")
+                    .call(tool_tip)
+                    .on('mouseover', tool_tip.show)
+                    .on('mouseout', tool_tip.hide);
+
+                // .attr("x", function(d) { return x(d.Country); })
+                // .attr("y", function(d) { return y(d.Value); })
+                // .attr("width", x.bandwidth())
+                // .attr("height", function(d) { return height - y(d.Value); })
+                // .attr("fill", "#69b3a2")
+
+
+            })
+        }
+        function d3plotWorkhouse() {
+
+            d3.csv("data/workhouse.csv", function (data) {
+                workhouse = data;
+
+
+                svg.selectAll("myCircles")  
+                    .data(workhouse)
+                    .enter()
+                    .append("circle")
+                    .attr("fill", "green")
+                    .attr("stroke", "none")
+                    .attr("cx", function (d) { return x(d.x) })
+                    .attr("cy", function (d) { return y(d.y) })
+                    .attr("r", 15)
+
+            });
+        }
+
+
+        function d3plotBrewery() {
+
+
+            d3.csv("data/brewery.csv", function (data) {
+                brewery = data;
+
+
+                svg.selectAll("myCircles")
+                    .data(brewery)
+                    .enter()
+                    .append("circle")
+                    .attr("fill", "yellow")
+                    .attr("stroke", "none")
+                    .attr("cx", function (d) { return x(d.x) })
+                    .attr("cy", function (d) { return y(d.y) })
+                    .attr("r", 20)
+
+            });
+        }
+
+
+        function d3streetdraw(d1, d2, deaths) {
+            var data = d1;
+            var data1 = d2;
+            var data2 = d3;
+            console.log("Hi : " + deaths)
+            x.domain([0, 15]);
+            y.domain([15, 0]);
+            d3ChartStreet(data);
+            d3plotPumps(data1);
+            d3plotWorkhouse();
+            d3plotBrewery();
+            d3chartDeaths(deaths);
+            d3chartDeaths(deaths);
+        }
+        var age_tool_tip = d3.tip()
+            .attr("class", "d3-tip")
+            .offset([-8, 0])
+            .html(function (d) { return "Age : " + d.age_real; });
+        var tip = d3.tip()
+            .attr("class", "d3-tip")
+            .offset([-8, 0])
+            .html(function (d) { return "<br><strong> Day:</strong> <span style='color:red'>" + d.day + "</span></br>" + "<strong>Deaths:</strong> <span style='color:red'>" + d.deaths + "</span>" + "<br><strong>Total Deaths:</strong> <span style='color:red'>" + d.total + "</span></br>"; });
+
+        function d3ChartStreet(data) {
+            svg.selectAll(".line")
+                .data(data)
+                .enter().append("path")
+                .style('fill', 'none')
+                .style('stroke', 'black')
+                .style('stroke-width', '1px')
+
+                .attr("class", "line")
+                .attr("d", valueline2);
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(300,140) rotate(-30)")
+                .text("Broad Street");
+
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(160,120) rotate(60)")
+                .text("Regent Street");
+
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(250,-55) rotate(-10)")
+                .text("Oxford Street");
+
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(350,-10) rotate(67)")
+                .text("Dean Street")
+
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .style("font-weight", "bold")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(280,-105) rotate(0)")
+                .text("Map Chart")
+
+            svg.append("circle")
+                .attr("r", 7)
+                .style("fill", "black")
+                .attr("transform", "translate(70,370) rotate(0)")
+
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(100,370) rotate(0)")
+                .text("Male")
+
+            svg.append("circle")
+                .attr("r", 6)
+                .style("fill", "blue")
+                .attr("transform", "translate(150,370) rotate(0)")
+
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(190,370) rotate(0)")
+                .text("Female")
+
+            svg.append("circle")
+                .attr("r", 6)
+                .style("fill", "red")
+                .attr("transform", "translate(360,370) rotate(0)")
+
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(400,370) rotate(0)")
+                .text("Pump")
+
+            svg.append("circle")
+                .attr("r", 6)
+                .style("fill", "green")
+                .attr("transform", "translate(445,370) rotate(0)")
+
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(495, 370) rotate(0)")
+                .text("WorkHouse")
+
+            svg.append("circle")
+                .attr("r", 6)
+                .style("fill", "yellow")
+                .attr("transform", "translate(260,370) rotate(0)")
+
+            svg.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(310,370) rotate(0)")
+                .text("Brewery")
+
+        }
+
+        function d3plotPumps(data) {
+            svg.selectAll("myCircles")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("fill", "red")
+                .attr("stroke", "none")
+                .attr("cx", function (d) { return x(d.x) })
+                .attr("cy", function (d) { return y(d.y) })
+                .attr("r", 3)
+        }
+
+        function d3chartDeaths(data) {
+            try {
+                console.log("Lenght : " + data.length)
+                var d_age = svg.selectAll(".circle_d")
+                    .data(data);
+
+
+                d_age.enter()
+                    .append("circle")
+                    .attr("r", 3)
+                    .attr("fill", function (d) { if (d.gender == 0) return "black"; else return "blue" })
+                    .attr("class", "circle_d");
+
+                d_age.attr("cx", function (d) { return x(d.x) })
+                    .attr("cy", function (d) { return y(d.y) })
+
+                    .call(age_tool_tip)
+                    .on('mouseover', age_tool_tip.show)
+                    .on('mouseout', age_tool_tip.hide);
+
+                d_age.exit().remove();
+            } catch (err) {
+
+            }
+        }
+
+        // Get the data
+
+        function draw_cumulative(data) {
+            tip.show(data);
+            d3plotPumps(pumps_loc);
+            // console.log("update : "+ deaths.slice(0, data.total).length)
+            d3chartDeaths(deaths.slice(0, data.total));
+        }
+
+
+        function d3plotTimeline(data) {
+            var margin = { top: 20, right: 30, bottom: 40, left: 90 },
+                width = 460 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+            console.log("tl : " + data)
+
+            var g = d3.select("#timeLine")
+                .append("svg")
+                .attr("id", "timeline")
+
+                .attr("width", "650")
+                .attr("height", "590")
+
+                .append("g")
+                .attr("transform", "translate(50,100)");
+
+            // Add X axis
+            var x = d3.scaleLinear()
+                .domain([0, 200])
+                .range([0, 550]);
+            g.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-45)")
+                .style("text-anchor", "end");
+
+            // Y axis
+            var y = d3.scaleBand()
+                .range([height, 0])
+                .domain(data.map(function (d) { return d.date; }))
+
+                .padding(.1);
+            g.append("g")
+                .call(d3.axisLeft(y))
+
+
+            g.selectAll("myRect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", x(0))
+                .attr("y", function (d) { return y(d.date); })
+                .attr("width", function (d) { return x(d.deaths); })
+                .attr("height", 3)
+                .attr("fill", "red")
+                .call(tip)
+
+                .on('mouseover', draw_cumulative)
+                .on('mouseout', tip.hide);
+
+
+            g.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(200,390) rotate(0)")
+                .text("Deaths")
+
+
+
+            g.append("text")
+                .style("fill", "black")
+                .style("font-size", "16px")
+                .style("font-weight", "bold")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("transform", "translate(190,-30) rotate(0)")
+                .text("Timeline Chart")
+
+        }
+
+    </script>
+</body>

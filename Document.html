@@ -1,0 +1,137 @@
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title> DOCUMENTATION </title>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="d3-tip.js"></script>
+
+</head>
+<style>
+	#page {
+		clear: both;
+	}
+
+	body {
+		margin: 36px;
+	}
+
+	text {
+		font-family: Arial;
+		font-size: 15px;
+	}
+</style>
+
+<body>
+
+	<h1>CHOLERA OUTBREAK- 1854 IN LONDON</h1>
+
+	<div>
+		<p>To complete this project, we will recreate Dr. John Snow's map using modern tools (D3). Additionally, we will
+			recreate the original map in an interactive version and add interface elements to make it more interactive.
+		</p>
+	</div>
+
+	<div>
+		<h3>OBJECTIVE:</h3>
+		<p>To recreate John Snow’s outbreak map using D3 JavaScript.</p>
+	</div>
+
+
+
+
+
+
+
+	<div>
+		<h3>REQUIREMENTS:</h3>
+		<p>I have gone through the deliverables of my project and summarized the requirements.</p>
+		<ol>
+			<li>Map showing the location of the deaths (streets, pumps)</li>
+			<li>An interactive timeline graph showing the number of deaths per day</li>
+			<li>The mouse is used to select the respective day to visualize the respective number of deaths displayed
+			</li>
+			<li>Interactive visualization of the map with the ability to zoom in and zoom out </li>
+			<li>A labeled and stable timeline graph is shown to the users </li>
+			<li>Visualization check with color blindness tool </li>
+			<li>Easily identifying the gender of each victim on the map</li>
+			<li>Age-based death graph with clearly labeled counts </li>
+			<li>An additional graph illustrating death distribution by sex and age </li>
+			<li>In the timeline graph, data can be shown from a certain window of time </li>
+
+		</ol>
+	</div>
+
+	<div>
+		<h3>DESIGN PROCESS:</h3>
+
+		<p> Based on the given data, I have used all data in the chart using d3 js lib. Using street data created a map
+			chart based on the x, y co-ordinates
+			and I have used various color to differentiate the attributes. Black refers to MALE, blue refers to FEMALE,
+			red color is refer to PUMPS location, green is for WORKHOUSE location and yellow is for BREWERY location.
+			By moving the cursor to the black or blue dots on the map you can see the age group of the victim
+			The street name is also mentioned in the map. Here timeline chart also created to understand the death based
+			on the days and also whenerver
+			mouseover on the timeline chart based on the date death locations are updated in map .
+			<br>
+			I have developed a timeline chart with the given dataset. From the timeline chart, we can see the epidemic
+			has reached its peak on Sep-1st and afterwards it started reducing gradually.
+		</p>
+
+	</div>
+	<div>
+		<p>
+
+		</p>
+	</div>
+	<div>
+		<img src="img/Map.JPG" height="400" width="950" alt="">
+	</div>
+
+
+	<div id="page">
+		<br>
+		<p>
+			Developed two additional charts
+			<br>
+			1. Age-based death chart <br>
+			2. Gender-based death chart. <br>
+			Age based death chart shows the age groups and number of deaths between the age groups. </p>
+	</div>
+
+	<div>
+		<h3>FINDINGS:</h3>
+		<p>Percentage of people in each age group in general during that time
+			were 0-10: 28%, 11-20: 25%, 21-40: 30%, 41-60: 13%, 61-80: 4%, > 80: 1%. Here we assume the same for London.
+			The largest number of victims were the older people aged greater than 80. The second largest were the kids
+			in age range 0-10. </p>
+	</div>
+
+
+	<div>
+		<h3>DEATHS ANALYSIS CHART : </h3>
+	</div>
+
+
+	<div>
+		<img src="img/AgeBased.JPG" height="400" width="400" alt="">
+	</div>
+
+	<div>
+		<img src="img/GenderBased.JPG" height="400" width="400" alt="">
+	</div>
+
+	<div>
+		<a href="index.html">Back to Home page</a>
+	</div>
+	 
+	<div>
+		<h3>REFERENCE</h3>
+		<p>To know more about the cholera outbreak, click on the link below</p>
+		<a
+			href="https://en.wikipedia.org/wiki/1854_Broad_Street_cholera_outbreak">https://en.wikipedia.org/wiki/1854_Broad_Street_cholera_outbreak</a>
+
+	</div>
+</body>
+
+</html>
